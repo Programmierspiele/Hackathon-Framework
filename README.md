@@ -24,3 +24,9 @@ The rotation that is requested, can be relative or absolute dependant on the gam
 
 Set your name. This can only be send once per connection.
 > {"name":STRING}
+
+Ping the server...
+> {"ping":"ping"}
+
+Answer a ping...
+> {"ping":"pong"}
