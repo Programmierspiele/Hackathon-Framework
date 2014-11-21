@@ -20,8 +20,12 @@ class Client
     write(:rotation => rotation)
   end
 
-  def write(object)
-    @network.send object
+  def send_name(rotation)
+    write(:name => rotation)
+  end
+
+  def write(map)
+    @network.send map
   end
 
   def read
