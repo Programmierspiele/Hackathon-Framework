@@ -20,8 +20,12 @@ class Client
     write(:rotation => rotation)
   end
 
-  def send_name(rotation)
-    write(:name => rotation)
+  def send_name(name)
+    write(:name => name)
+  end
+
+  def send_ping
+    write(:ping => 'ping')
   end
 
   def write(map)
@@ -58,16 +62,21 @@ class Client
 end
 
 if __FILE__ == $0
-  client = Client.new 'localhost', 25555
+  def client(id)
+    client = Client.new 'localhost', 25555
 
-  client.write(:ping => 'ping')
-  scene, command, speed, rotation = client.read
+    client.send_name(id)
+    puts client.read_map
 
-  puts scene
-  puts command
-  puts speed
-  puts rotation
+    while true
+      sleep 1
+      client.send_ping
+      map = client.read_map
+      puts map
+    end
+  end
 
-  client.write(:ping => 'ping')
-  puts client.read_map
+  client('ken1')
+
+  puts 'Disconnected'
 end
