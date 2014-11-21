@@ -21,3 +21,6 @@ The speed at which you want to move. Positive means forwards and negative backwa
 
 The rotation that is requested, can be relative or absolute dependant on the game.
 > {"rotation":DOUBLE}
+
+Set your name. This can only be send once per connection.
+> {"name":STRING}
