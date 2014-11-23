@@ -3,9 +3,17 @@ Universal-Hackathon-Api
 
 Try to define a minimal but just powerfull enough json protocol for common types of hackathon.
 
+API-Specification
+=================
 
-Specification
-=============
+You have to extend either the Server or the Client class dependent on your purpose. And pass the an instance to a Connection (for clients) or a Network (for servers).
+
+Finally clients have to call the startClientLoop-Method on the connection to get the game rolling.
+
+It's super simple just look at the saples.
+
+Network-Specification
+=====================
 
 Transfer the current gamestate.
 > {"scene":[GAME_OBJECT]}
