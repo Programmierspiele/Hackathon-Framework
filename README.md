@@ -7,7 +7,7 @@ Try to define a minimal but just powerfull enough json protocol for common types
 Specification
 =============
 
-Transfer a the current gamestate.
+Transfer the current gamestate.
 > {"scene":[GAME_OBJECT]}
 
 A simplified gameobject. Extra can be an array containing any simple data type like STRING, INT, DOUBLE, NULL.
