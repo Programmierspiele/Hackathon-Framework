@@ -20,8 +20,8 @@ namespace HackathonNetwork
             TcpClient client = new TcpClient(hostname, port);
             Connection connection = new Connection(client, new Program(), -1);
 
-            // Manually send the first message.
-            connection.Write("{\"ping\":\"ping\"}");
+            // Start the client loop.
+            connection.StartClientLoop();
 
             // Join the connection since it's callback based.
             connection.Join();

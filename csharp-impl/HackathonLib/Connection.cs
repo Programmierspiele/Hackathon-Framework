@@ -42,12 +42,24 @@ namespace Hackathonlib
                 connection.ReceiveTimeout = receiveTimeout;
             }
 
+            // Hole den Stream für's schreiben
+            outStream = connection.GetStream();
+            inStream = new StreamReader(connection.GetStream());
+
             // Initialisiert und startet den Thread
             thread = new Thread(new ThreadStart(Run));
             thread.Start();
         }
 
-        public void Write(string message)
+        /// <summary>
+        /// Start the client loop. Only call this client side.
+        /// </summary>
+        public void StartClientLoop()
+        {
+            Write("{\"ping\":\"ping\"}");
+        }
+
+        private void Write(string message)
         {
             // Wandele den String in ein Byte-Array um
             // Es wird noch ein Carriage-Return-Linefeed angefügt
@@ -57,7 +69,7 @@ namespace Hackathonlib
             outStream.Write(sendBytes, 0, sendBytes.Length);
         }
 
-        public string Read()
+        private string Read()
         {
             // Zeilenweise lesen von der Eingabe
             return inStream.ReadLine();
@@ -68,9 +80,6 @@ namespace Hackathonlib
         {
             // Setze Flag für "Thread läuft"
             this.running = true;
-            // Hole den Stream für's schreiben
-            outStream = connection.GetStream();
-            inStream = new StreamReader(connection.GetStream());
             bool loop = true;
             gameManager.ConnectionStarted(this);
 
@@ -141,7 +150,7 @@ namespace Hackathonlib
                     JSONNode obj = tmp as JSONNode;
                     // Not sure if this works...
                     var extra = new List<object>();
-                    foreach (var t in jsonObject["extra"].AsArray)
+                    foreach (var t in obj["extra"].AsArray)
                     {
                         extra.Add(t);
                     }
