@@ -8,7 +8,7 @@ using System.Net.Sockets;
 
 namespace HackathonNetwork
 {
-    class Program : IGameManager
+    class Program : Client
     {
         static void Main(string[] args)
         {
@@ -27,69 +27,39 @@ namespace HackathonNetwork
             connection.Join();
         }
 
-        void IGameManager.ConnectionStarted(Connection connection)
+        override public void UpdateScene(List<GameObject> scene)
         {
-            throw new NotImplementedException();
+            // TODO put code here
         }
 
-        void IGameManager.ConnectionReady(Connection connection)
+        override public string GetCommand()
         {
-            throw new NotImplementedException();
+            // TODO put code here
+            return null;
         }
 
-        void IGameManager.ConnectionLost(Connection connection)
+        override public string GetName()
         {
-            throw new NotImplementedException();
+            // TODO put code here
+            return null;
         }
 
-        void IGameManager.ExecuteCommand(Connection connection, string p)
+        override public double? GetSpeed()
         {
-            throw new NotImplementedException();
+            // TODO put code here
+            return null;
         }
 
-        void IGameManager.ChangeSpeed(Connection connection, double p)
+        override public double? GetRotation()
         {
-            throw new NotImplementedException();
+            // TODO put code here
+            return null;
         }
 
-        void IGameManager.ChangeRotation(Connection connection, double p)
+        override public bool DoPing()
         {
-            throw new NotImplementedException();
-        }
-
-        void IGameManager.UpdateScene(List<GameObject> scene)
-        {
-            throw new NotImplementedException();
-        }
-
-        List<GameObject> IGameManager.GetScene()
-        {
-            throw new NotImplementedException();
-        }
-
-        string IGameManager.GetCommand()
-        {
-            throw new NotImplementedException();
-        }
-
-        string IGameManager.GetName()
-        {
-            throw new NotImplementedException();
-        }
-
-        double? IGameManager.GetSpeed()
-        {
-            throw new NotImplementedException();
-        }
-
-        double? IGameManager.GetRotation()
-        {
-            throw new NotImplementedException();
-        }
-
-        bool IGameManager.DoPing()
-        {
-            throw new NotImplementedException();
+            // TODO put code here
+            return false;
         }
     }
 }

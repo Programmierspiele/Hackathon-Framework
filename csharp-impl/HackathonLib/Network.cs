@@ -59,7 +59,7 @@ namespace Hackathonlib
                     // und fügt ihn zur Liste der Server-Threads hinzu
                     threads.Add(new Connection(c, gameManager, receiveTimeout));
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // Do nothing..
                 }

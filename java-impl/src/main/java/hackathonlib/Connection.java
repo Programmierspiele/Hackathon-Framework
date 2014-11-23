@@ -58,7 +58,7 @@ public class Connection implements Runnable {
 
         // Hole den Stream für's schreiben
         try {
-            outStream = new PrintWriter(connection.getOutputStream(), true);;
+            outStream = new PrintWriter(connection.getOutputStream(), true);
             inStream = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         } catch (Exception e) {
             e.printStackTrace();

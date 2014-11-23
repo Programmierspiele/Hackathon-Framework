@@ -10,7 +10,7 @@ import java.util.List;
  * @version 1.0
  * @since 23.11.2014
  */
-public class TestProgram implements IGameManager {
+public class TestProgram extends Client {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         // Define hostname and port.
@@ -61,46 +61,5 @@ public class TestProgram implements IGameManager {
     public boolean doPing() {
         // TODO add code here
         return true;
-    }
-
-
-    // *********************************************************************************************
-    // SERVER STUFF BELOW
-    // *********************************************************************************************
-
-    @Override
-    public void connectionStarted(Connection connection) {
-        // Do nothing
-    }
-
-    @Override
-    public void connectionReady(Connection connection) {
-        // Do nothing
-    }
-
-    @Override
-    public void connectionLost(Connection connection) {
-        // Do nothing
-    }
-
-    @Override
-    public void executeCommand(Connection connection, String p) {
-        // Do nothing
-    }
-
-    @Override
-    public void changeSpeed(Connection connection, double p) {
-        // Do nothing
-    }
-
-    @Override
-    public void changeRotation(Connection connection, double p) {
-        // Do nothing
-    }
-
-    @Override
-    public List<GameObject> getScene() {
-        // Do nothing
-        return null;
     }
 }

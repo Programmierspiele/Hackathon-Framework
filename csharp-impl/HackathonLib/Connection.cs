@@ -94,7 +94,7 @@ namespace Hackathonlib
                     // Wiederhole die Schleife so lange bis von außen der Stopwunsch kommt
                     loop = !stop;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // oder bis ein Fehler aufgetreten ist
                     loop = false;
