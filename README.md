@@ -13,7 +13,9 @@ Finally clients have to call the startClientLoop-Method on the connection to get
 It's super simple just look at the saples.
 
 Java Sample: https://github.com/penguinmenac3/Hackathon-Framework/blob/master/java-impl/src/test/java/hackathonlib/TestProgram.java
+
 C# Sample: https://github.com/penguinmenac3/Hackathon-Framework/blob/master/csharp-impl/HackathonNetwork/Program.cs
+
 Ruby Sample: https://github.com/penguinmenac3/Hackathon-Framework/blob/master/ruby-impl/Sample.rb
 
 Network-Specification
