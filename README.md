@@ -1,7 +1,7 @@
-Universal-Hackathon-Api
-=======================
+Hackathon-Framework
+===================
 
-Try to define a minimal but just powerfull enough json protocol for common types of hackathon.
+A framework that can be reused for multiple hackathons for clients as well as servers.
 
 API-Specification
 =================
