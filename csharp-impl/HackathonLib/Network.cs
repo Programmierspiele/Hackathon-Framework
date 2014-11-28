@@ -11,7 +11,7 @@ namespace Hackathonlib
     /// <summary>
     /// A class that encapsulates a connection listener.
     /// </summary>
-    class Network
+    public class Network
     {
         private int port;
         private IGameManager gameManager;
@@ -21,6 +21,28 @@ namespace Hackathonlib
         private List<Connection> threads = new List<Connection>();
         private bool running = true;
         private Thread th;
+
+        /// <summary>
+        /// Connect to the server. Automatically retries when not successfull.
+        /// </summary>
+        /// <param name="hostname"></param>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        public static TcpClient Connect(string hostname, int port)
+        {
+            TcpClient client = null;
+            while (client == null)
+            {
+                try
+                {
+                    client = new TcpClient(hostname, port);
+                }
+                catch (Exception)
+                {
+                }
+            }
+            return client;
+        }
 
         /// <summary>
         /// Start to listen for incoming connections.

@@ -17,7 +17,7 @@ namespace HackathonNetwork
             int port = 25555;
 
             // Open up a tcp connection.
-            TcpClient client = new TcpClient(hostname, port);
+            TcpClient client = Network.Connect(hostname, port);
             Connection connection = new Connection(client, new Program(), -1);
 
             // Start the client loop.

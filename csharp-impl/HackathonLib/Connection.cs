@@ -1,4 +1,4 @@
-﻿using SimpleJSON;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,8 +15,6 @@ namespace Hackathonlib
 
         // Stop-Flag
         private bool stop = false;
-        // Flag für "Thread läuft"
-        private bool running = false;
         // Die Verbindung zum Client
         private TcpClient connection = null;
 
@@ -56,30 +54,30 @@ namespace Hackathonlib
         /// </summary>
         public void StartClientLoop()
         {
-            Write("{\"ping\":\"ping\"}");
+            var ping = new HackathonPacket();
+            ping.ping = "ping";
+            Write(ping);
         }
 
-        private void Write(string message)
+        private void Write(HackathonPacket message)
         {
             // Wandele den String in ein Byte-Array um
             // Es wird noch ein Carriage-Return-Linefeed angefügt
             // so daß das Lesen auf Client-Seite einfacher wird
-            Byte[] sendBytes = Encoding.ASCII.GetBytes(message + "\r\n");
+            Byte[] sendBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(message) + "\r\n");
             // Sende die Bytes zum Client
             outStream.Write(sendBytes, 0, sendBytes.Length);
         }
 
-        private string Read()
+        private HackathonPacket Read()
         {
             // Zeilenweise lesen von der Eingabe
-            return inStream.ReadLine();
+            return JsonConvert.DeserializeObject<HackathonPacket>(inStream.ReadLine());
         }
 
         // Der eigentliche Thread
         public void Run()
         {
-            // Setze Flag für "Thread läuft"
-            this.running = true;
             bool loop = true;
             gameManager.ConnectionStarted(this);
 
@@ -88,8 +86,7 @@ namespace Hackathonlib
                 try
                 {
                     Thread.Sleep(16);
-                    var result = Handle(JSON.Parse(Read()));
-                    Write(result);
+                    Write(Handle(Read()));
 
                     // Wiederhole die Schleife so lange bis von außen der Stopwunsch kommt
                     loop = !stop;
@@ -104,8 +101,6 @@ namespace Hackathonlib
 
             // Schließe die Verbindung zum Client
             this.connection.Close();
-            // Setze das Flag "Thread läuft" zurück
-            this.running = false;
         }
 
         public void Quit()
@@ -118,185 +113,57 @@ namespace Hackathonlib
             thread.Join();
         }
 
-        private string Handle(JSONNode jsonObject)
+        private HackathonPacket Handle(HackathonPacket packet)
         {
-            if (jsonObject["name"] != null)
+            HackathonPacket result = new HackathonPacket();
+
+            if (packet.name != null)
             {
-                var tmp = jsonObject["name"].Value;
-                if (name == "none" && tmp != "none")
+                if (name == "none" && packet.name != "none")
                 {
-                    name = tmp;
+                    name = packet.name;
                     gameManager.ConnectionReady(this);
                 }
             }
-            if (jsonObject["command"] != null)
+            if (packet.command != null)
             {
-                gameManager.ExecuteCommand(this, jsonObject["command"].Value);
+                gameManager.ExecuteCommand(this, packet.command);
             }
-            if (jsonObject["speed"] != null)
+            if (packet.speed != null)
             {
-                gameManager.ChangeSpeed(this, jsonObject["speed"].AsDouble);
+                gameManager.ChangeSpeed(this, packet.speed.Value);
             }
-            if (jsonObject["rotation"] != null)
+            if (packet.rotation != null)
             {
-                gameManager.ChangeRotation(this, jsonObject["rotation"].AsDouble);
+                gameManager.ChangeRotation(this, packet.rotation.Value);
             }
-            if (jsonObject["scene"] != null)
+            if (packet.scene != null)
             {
-                // Calculate a scene object.
-                List<GameObject> scene = new List<GameObject>();
-                foreach (var tmp in jsonObject["scene"].AsArray)
-                {
-                    JSONNode obj = tmp as JSONNode;
-                    // Not sure if this works...
-                    var extra = new List<object>();
-                    foreach (var t in obj["extra"].AsArray)
-                    {
-                        extra.Add(t);
-                    }
-                    // Add the object to the scene.
-                    scene.Add(new GameObject(obj["name"].Value, obj["x"].AsDouble, obj["y"].AsDouble, obj["z"].AsDouble, obj["rotation"].AsDouble, extra));
-                }
-                gameManager.UpdateScene(scene);
+                gameManager.UpdateScene(packet.scene);
             }
 
-            string result = "{";
-
-            bool topSeparatorRequired = false;
-
-            if (jsonObject["ping"] != null && jsonObject["ping"].Value == "ping")
+            // Prepare output...
+            if (packet.ping != null && packet.ping == "ping")
             {
-                if (topSeparatorRequired)
-                {
-                    result += ",";
-                }
-                else
-                {
-                    topSeparatorRequired = true;
-                }
-                result += "\"ping\":\"pong\"";
+                result.ping = "pong";
             }
 
-            if (jsonObject["ping"] == null && gameManager.DoPing())
+            if (packet.ping == null && gameManager.DoPing())
             {
-                if (topSeparatorRequired)
-                {
-                    result += ",";
-                }
-                else
-                {
-                    topSeparatorRequired = true;
-                }
-                result += "\"ping\":\"ping\"";
+                result.ping = "ping";
             }
 
-            var command = gameManager.GetCommand();
-            if (command != null)
+            if (name == "none" && "none" != gameManager.GetName())
             {
-                if (topSeparatorRequired)
-                {
-                    result += ",";
-                }
-                else
-                {
-                    topSeparatorRequired = true;
-                }
-                result += "\"command\":\"" + command + "\"";
+                result.name = gameManager.GetName();
             }
 
-            if (gameManager.GetName() != null && name == "none" && "none" != gameManager.GetName())
-            {
-                if (topSeparatorRequired)
-                {
-                    result += ",";
-                }
-                else
-                {
-                    topSeparatorRequired = true;
-                }
-                name = gameManager.GetName();
-                result += "\"name\":\"" + gameManager.GetName() + "\"";
-            }
+            result.command = gameManager.GetCommand();
+            result.speed = gameManager.GetSpeed();
+            result.rotation = gameManager.GetRotation();
+            result.scene = gameManager.GetScene();
 
-            var speed = gameManager.GetSpeed();
-            if (speed != null)
-            {
-                if (topSeparatorRequired)
-                {
-                    result += ",";
-                }
-                else
-                {
-                    topSeparatorRequired = true;
-                }
-                result += "\"speed\":\"" + speed + "\"";
-            }
-
-            var rotation = gameManager.GetRotation();
-            if (rotation != null)
-            {
-                if (topSeparatorRequired)
-                {
-                    result += ",";
-                }
-                else
-                {
-                    topSeparatorRequired = true;
-                }
-                result += "\"rotation\":\"" + rotation + "\"";
-            }
-
-            List<GameObject> outScene = gameManager.GetScene();
-            if (outScene != null)
-            {
-                if (topSeparatorRequired)
-                {
-                    result += ",";
-                }
-                else
-                {
-                    topSeparatorRequired = true;
-                }
-                result += "\"scene\":[";
-                bool separatorRequired = false;
-
-                foreach (var obj in outScene)
-                {
-                    if (separatorRequired) {
-                        result += ",";
-                    } else {
-                        separatorRequired = true;
-                    }
-                    result += "{";
-                    result += "\"name\":\"" + obj.name + "\",";
-                    result += "\"x\":\"" + obj.x + "\",";
-                    result += "\"y\":\"" + obj.y + "\",";
-                    result += "\"z\":\"" + obj.z + "\",";
-                    result += "\"rotation\":\"" + obj.rotation + "\",";
-                    result += "\"extra\":[";
-
-                    bool subSeparatorRequired = false;
-                    foreach (var ext in obj.extra)
-                    {
-                        if (subSeparatorRequired)
-                        {
-                            result += ",";
-                        }
-                        else
-                        {
-                            subSeparatorRequired = true;
-                        }
-                        result += ext.ToString();
-                    }
-
-                    result += "]";
-                    result += "}";
-                }
-
-                result += "]";
-            }
-
-            return result + "}";
+            return result;
         }
     }
 }
