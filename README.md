@@ -66,7 +66,7 @@ public class Sample extends Client {
 
 It's super simple just look at the complete samples, to see what methods you have to override.
 
-Java Sample: https://github.com/penguinmenac3/Hackathon-Framework/blob/master/java-impl/src/test/java/hackathonlib/TestProgram.java
+Java Sample: https://github.com/penguinmenac3/Hackathon-Framework/blob/master/java-impl/src/test/java/hackathonlib/Sample.java
 
 C# Sample: https://github.com/penguinmenac3/Hackathon-Framework/blob/master/csharp-impl/HackathonNetwork/Program.cs
 
