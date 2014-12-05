@@ -6,7 +6,9 @@ A framework that can be reused for multiple hackathons for clients as well as se
 API-Specification
 =================
 
-You have to extend either the Server or the Client class dependent on your purpose. And pass the an instance to a Connection (for clients) or a Network (for servers).
+You have to extend either the Server or the Client class dependent on your purpose. And pass the an instance to a Connection (for clients) or a Network (for servers). And finally clients have to call the startClientLoop-Method on the connection to get the game rolling.
+
+###### Ruby
 ```ruby
 class MyAI < Client
   ...
@@ -14,16 +16,55 @@ end
 ...
 client = Network.connect(hostname, port)
 connection = Connection.new(client, MyAI.new, -1)
-```
-
-Finally clients have to call the startClientLoop-Method on the connection to get the game rolling.
-
-```ruby
 connection.start_client_loop
 connection.join
 ```
 
-It's super simple just look at the complete saples.
+###### C-Sharp
+
+```csharp
+class Sample : Client
+{
+    static void Main(string[] args)
+    {
+        // Define hostname and port.
+        string hostname = "localhost";
+        int port = 25555;
+        // Open up a tcp connection.
+        TcpClient client = Network.Connect(hostname, port);
+        Connection connection = new Connection(client, new Sample(), -1, true);
+        // Join the connection since it's callback based.
+        connection.Join();
+    }
+    override public void UpdateScene(List<GameObject> scene)
+    { ... }
+    ...
+}
+```
+
+###### Java
+
+```java
+public class Sample extends Client {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        // Define hostname and port.
+        String hostname = "localhost";
+        int port = 25555;
+        // Open up a tcp connection.
+        Socket client = new Socket(hostname, port);
+        Connection connection = new Connection(client, new Sample(), -1);
+        // Start the client loop.
+        connection.startClientLoop();
+        // Join the connection since it's callback based.
+        connection.join();
+    }
+    @Override
+    public void updateScene(List<GameObject> scene) { ... }
+    ...
+}
+```
+
+It's super simple just look at the complete samples, to see what methods you have to override.
 
 Java Sample: https://github.com/penguinmenac3/Hackathon-Framework/blob/master/java-impl/src/test/java/hackathonlib/TestProgram.java
 
