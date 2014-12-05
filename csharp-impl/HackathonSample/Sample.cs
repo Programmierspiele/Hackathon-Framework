@@ -1,24 +1,19 @@
-﻿using Hackathonlib;
-using System;
+﻿using HackathonLib;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net.Sockets;
 
-namespace HackathonNetwork
+namespace HackathonSample
 {
-    class Program : Client
+    class Sample : Client
     {
-        static void Main(string[] args)
+        static void Main()
         {
             // Define hostname and port.
-            string hostname = "localhost";
-            int port = 25555;
+            const string hostname = "localhost";
+            const int port = 25555;
 
             // Open up a tcp connection.
-            TcpClient client = Network.Connect(hostname, port);
-            Connection connection = new Connection(client, new Program(), -1, true);
+            var client = Network.Connect(hostname, port);
+            var connection = new Connection(client, new Sample(), -1, true);
 
             // Join the connection since it's callback based.
             connection.Join();
@@ -38,7 +33,7 @@ namespace HackathonNetwork
         override public string GetName()
         {
             // TODO put code here
-            return "Test";
+            return "C-Sharp Sample";
         }
 
         override public double? GetSpeed()

@@ -1,56 +1,60 @@
-﻿using System.Diagnostics;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace Hackathonlib
+namespace HackathonLib
 {
     public class Connection
     {
-        public string name { get; private set; }
+        public string Name { get; private set; }
 
         // Stop-Flag
-        private bool stop = false;
-        // Die Verbindung zum Client
-        private TcpClient connection = null;
+        private bool _stop;
+        // The tcp connection to the client.
+        private readonly TcpClient _connection;
 
-        // Der Ausgabestream
-        private Stream outStream;
-        // Der Eingabestream
-        private StreamReader inStream;
-        // Der Spielkoordinator
-        private IGameManager gameManager;
-        // The worker thread.
-        private Thread thread;
+        // In and output streams
+        private readonly Stream _outStream;
+        private readonly StreamReader _inStream;
+        // The gamemanager callback
+        private readonly IGameManager _gameManager;
+        // The worker thread
+        private readonly Thread _thread;
 
-        // Speichert die Verbindung zum Client und startet den Thread
+        /// <summary>
+        /// Manage a connection with a client.
+        /// </summary>
+        /// <param name="connection">The connection with the client.</param>
+        /// <param name="gameManager">The game manager callback.</param>
+        /// <param name="receiveTimeout">The receive timeout. (0 or smaller means default)</param>
+        /// <param name="isClient">Clients have to create connections differently then servers.</param>
         public Connection(TcpClient connection, IGameManager gameManager, int receiveTimeout, bool isClient)
         {
-            name = "none";
-            this.gameManager = gameManager;
-            this.connection = connection;
+            Name = "none";
+            _gameManager = gameManager;
+            _connection = connection;
 
-            // Setze das receive timeout. Für server wichtig...
+            // Set the receive timeout. (Important for gameservers)
             if (receiveTimeout > 0)
             {
                 connection.ReceiveTimeout = receiveTimeout;
             }
 
-            // Hole den Stream für's schreiben
-            outStream = connection.GetStream();
-            inStream = new StreamReader(connection.GetStream());
+            // Initialize streams
+            _outStream = connection.GetStream();
+            _inStream = new StreamReader(connection.GetStream());
 
             if (isClient)
             {
                 StartClientLoop();
             }
 
-            // Initialisiert und startet den Thread
-            thread = new Thread(new ThreadStart(Run));
-            thread.Start();
+            // Startup the network loop in separate thread.
+            _thread = new Thread(Run);
+            _thread.Start();
         }
 
         /// <summary>
@@ -58,25 +62,22 @@ namespace Hackathonlib
         /// </summary>
         private void StartClientLoop()
         {
-            var ping = new HackathonPacket();
-            ping.ping = "ping";
+            var ping = new HackathonPacket {ping = "ping"};
             Write(ping);
         }
 
         private void Write(HackathonPacket message)
         {
-            // Wandele den String in ein Byte-Array um
-            // Es wird noch ein Carriage-Return-Linefeed angefügt
-            // so daß das Lesen auf Client-Seite einfacher wird
-            Byte[] sendBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(message) + "\r\n");
-            // Sende die Bytes zum Client
-            outStream.Write(sendBytes, 0, sendBytes.Length);
+            // Transform the packet into a ASCII string json-encoded.
+            var sendBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(message) + "\r\n");
+            // Send the bytes to the client.
+            _outStream.Write(sendBytes, 0, sendBytes.Length);
         }
 
         private HackathonPacket Read()
         {
-            // Zeilenweise lesen von der Eingabe
-            string str = inStream.ReadLine();
+            // Read the input line by line and convert it to a json-object.
+            var str = _inStream.ReadLine();
             try
             {
                 return JsonConvert.DeserializeObject<HackathonPacket>(str);
@@ -88,11 +89,10 @@ namespace Hackathonlib
             }
         }
 
-        // Der eigentliche Thread
-        public void Run()
+        private void Run()
         {
-            bool loop = true;
-            gameManager.ConnectionStarted(this);
+            var loop = true;
+            _gameManager.ConnectionStarted(this);
 
             while (loop)
             {
@@ -102,58 +102,64 @@ namespace Hackathonlib
                     var packet = Read();
                     Write(Handle(packet));
 
-                    // Wiederhole die Schleife so lange bis von außen der Stopwunsch kommt
-                    loop = !stop;
+                    // Repeat until a stop is requested.
+                    loop = !_stop;
                 }
                 catch (Exception)
                 {
-                    // oder bis ein Fehler aufgetreten ist
+                    // Or any exception occurs.
                     loop = false;
                 }
             }
-            gameManager.ConnectionLost(this);
+            _gameManager.ConnectionLost(this);
 
-            // Schließe die Verbindung zum Client
-            this.connection.Close();
+            // Close the connection.
+            _connection.Close();
         }
 
+        /// <summary>
+        /// Quit the connection loop.
+        /// </summary>
         public void Quit()
         {
-            stop = true;
+            _stop = true;
         }
 
+        /// <summary>
+        /// Join the network loop.
+        /// </summary>
         public void Join()
         {
-            thread.Join();
+            _thread.Join();
         }
 
         private HackathonPacket Handle(HackathonPacket packet)
         {
-            HackathonPacket result = new HackathonPacket();
+            var result = new HackathonPacket();
 
             if (packet.name != null)
             {
-                if (name == "none" && packet.name != "none")
+                if (Name == "none" && packet.name != "none")
                 {
-                    name = packet.name;
-                    gameManager.ConnectionReady(this);
+                    Name = packet.name;
+                    _gameManager.ConnectionReady(this);
                 }
             }
             if (packet.command != null)
             {
-                gameManager.ExecuteCommand(this, packet.command);
+                _gameManager.ExecuteCommand(this, packet.command);
             }
             if (packet.speed != null)
             {
-                gameManager.ChangeSpeed(this, packet.speed.Value);
+                _gameManager.ChangeSpeed(this, packet.speed.Value);
             }
             if (packet.rotation != null)
             {
-                gameManager.ChangeRotation(this, packet.rotation.Value);
+                _gameManager.ChangeRotation(this, packet.rotation.Value);
             }
             if (packet.scene != null)
             {
-                gameManager.UpdateScene(packet.scene);
+                _gameManager.UpdateScene(packet.scene);
             }
 
             // Prepare output...
@@ -162,21 +168,21 @@ namespace Hackathonlib
                 result.ping = "pong";
             }
 
-            if (packet.ping == null && gameManager.DoPing())
+            if (packet.ping == null && _gameManager.DoPing())
             {
                 result.ping = "ping";
             }
 
-            if (name == "none" && "none" != gameManager.GetName() && gameManager.GetName() != null)
+            if (Name == "none" && "none" != _gameManager.GetName() && _gameManager.GetName() != null)
             {
-                result.name = gameManager.GetName();
-                name = result.name;
+                result.name = _gameManager.GetName();
+                Name = result.name;
             }
 
-            result.command = gameManager.GetCommand();
-            result.speed = gameManager.GetSpeed();
-            result.rotation = gameManager.GetRotation();
-            result.scene = gameManager.GetScene();
+            result.command = _gameManager.GetCommand();
+            result.speed = _gameManager.GetSpeed();
+            result.rotation = _gameManager.GetRotation();
+            result.scene = _gameManager.GetScene();
 
             return result;
         }

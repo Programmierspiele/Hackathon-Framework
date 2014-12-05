@@ -1,26 +1,23 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 
-namespace Hackathonlib
+namespace HackathonLib
 {
     /// <summary>
     /// A class that encapsulates a connection listener.
     /// </summary>
     public class Network
     {
-        private int port;
-        private IGameManager gameManager;
-        private int receiveTimeout;
+        private int _port;
+        private IGameManager _gameManager;
+        private int _receiveTimeout;
 
-        private TcpListener listener;
-        private List<Connection> threads = new List<Connection>();
-        private bool running = true;
-        private Thread th;
+        private TcpListener _listener;
+        private readonly List<Connection> _threads = new List<Connection>();
+        private bool _running = true;
+        private Thread _th;
 
         /// <summary>
         /// Connect to the server. Automatically retries when not successfull.
@@ -37,8 +34,10 @@ namespace Hackathonlib
                 {
                     client = new TcpClient(hostname, port);
                 }
-                catch (Exception)
+                catch (SocketException)
                 {
+                    Console.WriteLine("Cannot reach host.");
+                    Thread.Sleep(1000);
                 }
             }
             return client;
@@ -48,50 +47,49 @@ namespace Hackathonlib
         /// Start to listen for incoming connections.
         /// </summary>
         /// <param name="port">Listen on this port.</param>
+        /// <param name="gameManager">The gamemanager used for callbacks.</param>
+        /// <param name="receiveTimeout">The timeout allowed.</param>
         public void StartListen(int port, IGameManager gameManager, int receiveTimeout)
         {
-            this.port = port;
-            this.gameManager = gameManager;
-            this.receiveTimeout = receiveTimeout;
+            _port = port;
+            _gameManager = gameManager;
+            _receiveTimeout = receiveTimeout;
 
-            th = new Thread(new ThreadStart(Run));
-            th.Start();
+            _th = new Thread(Run);
+            _th.Start();
         }
 
         private void Run()
         {
             try
             {
-                listener = new TcpListener(port);
-                listener.Start();
+// ReSharper disable once CSharpWarnings::CS0618
+                _listener = new TcpListener(_port);
+                _listener.Start();
             }
             catch (Exception)
             {
                 Console.Error.WriteLine("Cannot open port...");
             }
 
-            while (running)
+            while (_running)
             {
                 try
                 {
-                    // Wartet auf eingehenden Verbindungswunsch
-                    TcpClient c = listener.AcceptTcpClient();
-                    if (c == null) continue;
-                    // Initialisiert und startet einen Server-Thread
-                    // und fügt ihn zur Liste der Server-Threads hinzu
-                    threads.Add(new Connection(c, gameManager, receiveTimeout, false));
+                    // Accept incoming connections.
+                    _threads.Add(new Connection(_listener.AcceptTcpClient(), _gameManager, _receiveTimeout, false));
                 }
-                catch (Exception)
+                catch (SocketException)
                 {
                     // Do nothing..
                 }
             }
 
-            listener.Stop();
-            listener = null;
+            _listener.Stop();
+            _listener = null;
 
-            // Alle Server-Threads stoppen
-            foreach (var t in threads)
+            // Stop all connections.
+            foreach (var t in _threads)
             {
                 t.Quit();
             }
@@ -102,12 +100,10 @@ namespace Hackathonlib
         /// </summary>
         public void EndListen()
         {
-            running = false;
-            if (listener != null)
-            {
-                var conn = new TcpClient("localhost", port);
-                conn.Close();
-            }
+            _running = false;
+            if (_listener == null) return;
+            var conn = new TcpClient("localhost", _port);
+            conn.Close();
         }
     }
 }

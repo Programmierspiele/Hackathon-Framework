@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackathonNetwork", "HackathonNetwork.csproj", "{617118B1-8FE2-4F64-B357-D96444D3D795}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackathonSample", "HackathonSample\HackathonSample.csproj", "{617118B1-8FE2-4F64-B357-D96444D3D795}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackathonLib", "..\HackathonLib\HackathonLib.csproj", "{2D7651B6-9830-47D2-8C78-BF6FC3B80BF8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackathonLib", "HackathonLib\HackathonLib.csproj", "{2D7651B6-9830-47D2-8C78-BF6FC3B80BF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

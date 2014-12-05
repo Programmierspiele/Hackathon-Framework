@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Hackathonlib
+namespace HackathonLib
 {
     public abstract class Client : IGameManager
     {
