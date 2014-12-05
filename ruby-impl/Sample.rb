@@ -33,13 +33,21 @@ if __FILE__ == $0
   hostname = 'localhost'
   port = 25555
 
-  # Open up a tcp connection.
-  client = Network.connect(hostname, port)
-  connection = Connection.new(client, Sample.new, -1)
+  while true do
+    begin
+    # Open up a tcp connection.
+    client = Network.connect(hostname, port)
+    connection = Connection.new(client, Sample.new, -1)
 
-  # Start the client loop.
-  connection.start_client_loop
+    # Start the client loop.
+    connection.start_client_loop
 
-  # Join the connection since it's callback based.
-  connection.join
+   # Join the connection since it's callback based.
+    connection.join
+
+    connection.close
+    rescue
+    end
+    sleep 1
+  end
 end

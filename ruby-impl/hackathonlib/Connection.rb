@@ -28,6 +28,7 @@ class Connection
         write (handle read)
       rescue => e
         puts e.backtrace
+        @stop = true
       end
     end
 

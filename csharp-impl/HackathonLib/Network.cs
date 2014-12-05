@@ -79,7 +79,7 @@ namespace Hackathonlib
                     if (c == null) continue;
                     // Initialisiert und startet einen Server-Thread
                     // und fügt ihn zur Liste der Server-Threads hinzu
-                    threads.Add(new Connection(c, gameManager, receiveTimeout));
+                    threads.Add(new Connection(c, gameManager, receiveTimeout, false));
                 }
                 catch (Exception)
                 {

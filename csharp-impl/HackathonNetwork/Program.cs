@@ -18,10 +18,7 @@ namespace HackathonNetwork
 
             // Open up a tcp connection.
             TcpClient client = Network.Connect(hostname, port);
-            Connection connection = new Connection(client, new Program(), -1);
-
-            // Start the client loop.
-            connection.StartClientLoop();
+            Connection connection = new Connection(client, new Program(), -1, true);
 
             // Join the connection since it's callback based.
             connection.Join();
@@ -41,7 +38,7 @@ namespace HackathonNetwork
         override public string GetName()
         {
             // TODO put code here
-            return null;
+            return "Test";
         }
 
         override public double? GetSpeed()
@@ -59,7 +56,7 @@ namespace HackathonNetwork
         override public bool DoPing()
         {
             // TODO put code here
-            return false;
+            return true;
         }
     }
 }

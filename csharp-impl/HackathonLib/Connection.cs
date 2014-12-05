@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System.Diagnostics;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -28,9 +27,9 @@ namespace Hackathonlib
         private Thread thread;
 
         // Speichert die Verbindung zum Client und startet den Thread
-        public Connection(TcpClient connection, IGameManager gameManager, int receiveTimeout)
+        public Connection(TcpClient connection, IGameManager gameManager, int receiveTimeout, bool isClient)
         {
-            this.name = "none";
+            name = "none";
             this.gameManager = gameManager;
             this.connection = connection;
 
@@ -44,6 +43,11 @@ namespace Hackathonlib
             outStream = connection.GetStream();
             inStream = new StreamReader(connection.GetStream());
 
+            if (isClient)
+            {
+                StartClientLoop();
+            }
+
             // Initialisiert und startet den Thread
             thread = new Thread(new ThreadStart(Run));
             thread.Start();
@@ -52,7 +56,7 @@ namespace Hackathonlib
         /// <summary>
         /// Start the client loop. Only call this client side.
         /// </summary>
-        public void StartClientLoop()
+        private void StartClientLoop()
         {
             var ping = new HackathonPacket();
             ping.ping = "ping";
@@ -72,7 +76,16 @@ namespace Hackathonlib
         private HackathonPacket Read()
         {
             // Zeilenweise lesen von der Eingabe
-            return JsonConvert.DeserializeObject<HackathonPacket>(inStream.ReadLine());
+            string str = inStream.ReadLine();
+            try
+            {
+                return JsonConvert.DeserializeObject<HackathonPacket>(str);
+            }
+            catch (JsonException e)
+            {
+                Console.WriteLine(str + ": " + e);
+                throw;
+            }
         }
 
         // Der eigentliche Thread
@@ -86,7 +99,8 @@ namespace Hackathonlib
                 try
                 {
                     Thread.Sleep(16);
-                    Write(Handle(Read()));
+                    var packet = Read();
+                    Write(Handle(packet));
 
                     // Wiederhole die Schleife so lange bis von außen der Stopwunsch kommt
                     loop = !stop;
@@ -153,9 +167,10 @@ namespace Hackathonlib
                 result.ping = "ping";
             }
 
-            if (name == "none" && "none" != gameManager.GetName())
+            if (name == "none" && "none" != gameManager.GetName() && gameManager.GetName() != null)
             {
                 result.name = gameManager.GetName();
+                name = result.name;
             }
 
             result.command = gameManager.GetCommand();
