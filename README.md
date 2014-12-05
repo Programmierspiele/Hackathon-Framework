@@ -25,7 +25,7 @@ connection.join
 ```csharp
 class Sample : Client
 {
-    static void Main(string[] args)
+    static void Main()
     {
         // Define hostname and port.
         const string hostname = "localhost";
