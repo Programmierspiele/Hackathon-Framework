@@ -10,7 +10,7 @@ import java.util.List;
  * @version 1.0
  * @since 23.11.2014
  */
-public class TestProgram extends Client {
+public class Sample extends Client {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         // Define hostname and port.
@@ -19,7 +19,7 @@ public class TestProgram extends Client {
 
         // Open up a tcp connection.
         Socket client = new Socket(hostname, port);
-        Connection connection = new Connection(client, new TestProgram(), -1);
+        Connection connection = new Connection(client, new Sample(), -1);
 
         // Start the client loop.
         connection.startClientLoop();
