@@ -28,11 +28,11 @@ class Sample : Client
     static void Main(string[] args)
     {
         // Define hostname and port.
-        string hostname = "localhost";
-        int port = 25555;
+        const string hostname = "localhost";
+        const int port = 25555;
         // Open up a tcp connection.
-        TcpClient client = Network.Connect(hostname, port);
-        Connection connection = new Connection(client, new Sample(), -1, true);
+        var client = Network.Connect(hostname, port);
+        var connection = new Connection(client, new Sample(), -1, true);
         // Join the connection since it's callback based.
         connection.Join();
     }
@@ -68,7 +68,7 @@ It's super simple just look at the complete samples, to see what methods you hav
 
 Java Sample: https://github.com/penguinmenac3/Hackathon-Framework/blob/master/java-impl/src/test/java/hackathonlib/Sample.java
 
-C# Sample: https://github.com/penguinmenac3/Hackathon-Framework/blob/master/csharp-impl/HackathonNetwork/Program.cs
+C# Sample: https://github.com/penguinmenac3/Hackathon-Framework/blob/master/csharp-impl/HackathonSample/Sample.cs
 
 Ruby Sample: https://github.com/penguinmenac3/Hackathon-Framework/blob/master/ruby-impl/Sample.rb
 
