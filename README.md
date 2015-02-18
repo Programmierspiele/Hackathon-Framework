@@ -3,6 +3,9 @@ Hackathon-Framework
 
 A framework that can be reused for multiple hackathons for clients as well as servers.
 
+![Image of Robohack using Hackathon-Framework](http://www.michaelfuerst.de/wordpress/wp-content/uploads/2014/11/RoboHack_wp.png)
+A hackathon using the framework. http://www.michaelfuerst.de/wordpress/?p=1
+
 API-Specification
 =================
 
