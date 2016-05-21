@@ -80,7 +80,7 @@ Network-Specification
 
 If you don't like the framework you can easily write your own client with the following network specification.
 
-There is send one of the following JSON-Objects per line. (Java, C# and Ruby default linefeeds work corretly.)
+There is send one of the following JSON-Objects per line. (Java, C# and Ruby default linefeeds work correctly.)
 
 Transfer the current gamestate.
 ```json
